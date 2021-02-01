@@ -9,9 +9,7 @@ popd > /dev/null
 
 source ${SCRIPTPATH}/lib/query_problem.sh
 
-function usage()
-{
-
+function usage() {
     echo -e "Usage: ${0} [url] [source_file] [file_type]"
     echo -e ""
     echo -e "Example:"
@@ -136,7 +134,7 @@ function build_comment() {
                     sed '2i\'$'\n'"#"$'\n' |
                     sed '$a\'$'\n'"#"$'\n' |
                     sed '$a\'$'\n'"$(printf "%0.s#" ${WIDTH_SEQ})"$'\n' |
-                    sed 's/\r//'>> ${OUTPUT_PATH}
+                    sed 's/\r//; s/ $//;' >> ${OUTPUT_PATH}
             fi
             ;;
         * )
