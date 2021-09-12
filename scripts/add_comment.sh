@@ -7,15 +7,15 @@ pushd $(dirname $0) >/dev/null
 SCRIPTPATH=$(pwd)
 popd >/dev/null
 
-source ${SCRIPTPATH}/lib/query_problem.sh
+source $SCRIPTPATH/lib/query_problem.sh
 
 function usage() {
-	echo -e "Usage: ${0} [url] [source_file] [file_type]"
+	echo -e "Usage: $0 [url] [source_file] [file_type]"
 	echo -e ""
 	echo -e "Example:"
 	echo -e ""
 	echo -e "   Create a file named largest_number.py, and add Copyright & Problem description"
-	echo -e "   ${0} https://leetcode.com/problems/largest-number/"
+	echo -e "   $0 https://leetcode.com/problems/largest-number/"
 	echo -e ""
 }
 
@@ -44,7 +44,7 @@ fi
 
 # Get question details
 extract_question_slug $LEETCODE_URL
-query_problem $LEETCODE_URL $QUESTION_TITLE_SLUG
+query_problem $QUESTION_TITLE_SLUG $FILE_TYPE
 
 file_name=$(echo $QUESTION_TITLE_SLUG | sed 's/-/_/g' | xargs printf '%04d_%s' $QUESTION_FRONTEND_ID)
 
@@ -71,22 +71,22 @@ p | py | python)
 	;;
 esac
 
-FULL_FILE_PATH=$(echo ${FOLDER_NAME}/${file_name}${FILE_EXT})
+FULL_FILE_PATH=$(echo $FOLDER_NAME/$file_name$FILE_EXT)
 
-if [ ! -f ${FULL_FILE_PATH} ]; then
-	echo "Create a new file - ${FULL_FILE_PATH}"
-	echo -e "\n" >${FULL_FILE_PATH}
+if [ ! -f $FULL_FILE_PATH ]; then
+	echo "Create a new file - $FULL_FILE_PATH"
+	echo -e "\n" >$FULL_FILE_PATH
 fi
 
 # Get author name
 get_author_name
 
 # Add copyright
-if ! grep "${COMMENT_TAG} Author :" $FULL_FILE_PATH >/dev/null; then
-	sed -i.bak '1i\'$'\n'"${COMMENT_TAG} Source : ${LEETCODE_URL}"$'\n' $FULL_FILE_PATH >/dev/null
-	sed -i.bak '2i\'$'\n'"${COMMENT_TAG} Author : ${AUTHOR}"$'\n' $FULL_FILE_PATH >/dev/null
-	sed -i.bak '3i\'$'\n'"${COMMENT_TAG} Date   : ${CURRENT_DATE}" $FULL_FILE_PATH >/dev/null
-	rm ${FULL_FILE_PATH}.bak
+if ! grep "$COMMENT_TAG Author :" $FULL_FILE_PATH >/dev/null; then
+	sed -i.bak '1i\'$'\n'"$COMMENT_TAG Source : $LEETCODE_URL"$'\n' $FULL_FILE_PATH >/dev/null
+	sed -i.bak '2i\'$'\n'"$COMMENT_TAG Author : $AUTHOR"$'\n' $FULL_FILE_PATH >/dev/null
+	sed -i.bak '3i\'$'\n'"$COMMENT_TAG Date   : $CURRENT_DATE" $FULL_FILE_PATH >/dev/null
+	rm $FULL_FILE_PATH.bak
 fi
 
 function build_comment() {
@@ -106,33 +106,33 @@ function build_comment() {
 		;;
 	esac
 
-	WIDTH_SEQ=$(seq 1 ${WIDTH_OFFSET})
+	WIDTH_SEQ=$(seq 1 $WIDTH_OFFSET)
 
 	case $STYLE in
 	clike)
 		if ! grep '\*\*\*\*\*' $OUTPUT_PATH >/dev/null; then
-			echo "${QUESTION_CONTENT}" |
-				fold -w ${WIDTH_FOLD} -s |
+			echo "$QUESTION_CONTENT" |
+				fold -w $WIDTH_FOLD -s |
 				sed 's/^ *//g' |
 				sed 's/^/ * /g' |
 				sed 's/	//g' | # this is a tab literal
-				sed '1i\'$'\n'"/*$(printf "%0.s*" ${WIDTH_SEQ})"$'\n' |
+				sed '1i\'$'\n'"/*$(printf "%0.s*" $WIDTH_SEQ)"$'\n' |
 				sed '2i\'$'\n'"\ *"$'\n' |
 				sed '$a\'$'\n'"\ *"$'\n' |
-				sed '$a\'$'\n'"$(printf "%0.s*" ${WIDTH_SEQ})*/"$'\n' >>${OUTPUT_PATH}
+				sed '$a\'$'\n'"$(printf "%0.s*" $WIDTH_SEQ)*/"$'\n' >>$OUTPUT_PATH && echo "$CODE_SNIPPET" >>$OUTPUT_PATH
 		fi
 		;;
 	script)
 		if ! grep '#####' $OUTPUT_PATH >/dev/null; then
-			echo "${QUESTION_CONTENT}" |
+			echo "$QUESTION_CONTENT" |
 				sed 's/^[[:space:]]*$/\n/g' | cat -s |
-				fold -w ${WIDTH_FOLD} -s |
+				fold -w $WIDTH_FOLD -s |
 				sed 's/^/# /' |
-				sed '1i\'$'\n'"$(printf "%0.s#" ${WIDTH_SEQ})"$'\n' |
+				sed '1i\'$'\n'"$(printf "%0.s#" $WIDTH_SEQ)"$'\n' |
 				sed '2i\'$'\n'"#"$'\n' |
 				sed '$a\'$'\n'"#"$'\n' |
-				sed '$a\'$'\n'"$(printf "%0.s#" ${WIDTH_SEQ})"$'\n' |
-				sed 's/\r//; s/ $//;' >>${OUTPUT_PATH}
+				sed '$a\'$'\n'"$(printf "%0.s#" $WIDTH_SEQ)"$'\n' |
+				sed 's/\r//; s/ $//;' >>$OUTPUT_PATH
 		fi
 		;;
 	*)
@@ -143,12 +143,12 @@ function build_comment() {
 }
 
 # Add problem description to file
-case ${FILE_EXT} in
+case $FILE_EXT in
 .c | .cpp)
-	build_comment "${QUESTION_CONTENT}" clike "${FULL_FILE_PATH}"
+	build_comment "$QUESTION_CONTENT" clike "$FULL_FILE_PATH"
 	;;
 .py)
-	build_comment "${QUESTION_CONTENT}" script "${FULL_FILE_PATH}"
+	build_comment "$QUESTION_CONTENT" script "$FULL_FILE_PATH"
 	;;
 *)
 	echo "File extension not supported"
