@@ -17,8 +17,8 @@ function extract_number_from_rg() {
 }
 
 # Find range of lines in file
-START=$(cat $1 | rg -n '/\*\*' | extract_number_from_rg)
-END=$(cat $1 | rg -n '\*\*/' | extract_number_from_rg)
+START=$(cat $1 | rg -n '/\*\*' | head -n 1 | extract_number_from_rg)
+END=$(cat $1 | rg -n '\*\*/' | head -n 1 | extract_number_from_rg)
 
 # Extract inputs
 EXTRACTED_CONTENT=$(cat $1 | sed -n "${START},${END}p")
